@@ -13,6 +13,12 @@ case class FilteredMessage(light: String, and: String, fluffy: String, message: 
 case class UnfilteredPayload(largePayload: String)
 
 object ContentFilterDriver extends CompletableApp(3) {
+  val messageExchangeDispatcher = system.actorOf(Props[MessageExchangeDispatcher], "messageExchangeDispatcher")
+
+  messageExchangeDispatcher ! UnfilteredPayload("A very large message with complex structure...")
+
+  awaitCompletion
+  println("RequestReply: is completed.")
 }
 
 class MessageExchangeDispatcher extends Actor {
