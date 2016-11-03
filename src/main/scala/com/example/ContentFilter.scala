@@ -1,5 +1,6 @@
 package com.example
 
+import akka.actor.Actor.Receive
 import akka.actor._
 
 case class FilteredMessage(light: String, and: String, fluffy: String, message: String) {
@@ -10,5 +11,17 @@ case class FilteredMessage(light: String, and: String, fluffy: String, message: 
 
 case class UnfilteredPayload(largePayload: String)
 
-object ContentFilterDriver {
+object ContentFilterDriver extends CompletableApp(3) {
+}
+
+class MessageContentFilter extends Actor {
+  override def receive: Receive = {
+    case message: UnfilteredPayload =>
+      println("MessageContentFilter: received unfiltered message: " + message.largePayload)
+      // filtering occurs...
+      sender ! FilteredMessage("this", "feels", "so", "right")
+      ContentFilterDriver.completedStep()
+    case _ =>
+      println("MessageContentFilter: received unexpected message")
+  }
 }
