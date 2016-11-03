@@ -2,7 +2,6 @@ package com.example
 
 import akka.actor.Actor.Receive
 import akka.actor._
-import com.sun.java.util.jar.pack.Package.File
 
 case class FilteredMessage(light: String, and: String, fluffy: String, message: String) {
   override def toString: String = {
