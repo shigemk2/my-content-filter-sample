@@ -2,6 +2,7 @@ package com.example
 
 import akka.actor.Actor.Receive
 import akka.actor._
+import com.sun.java.util.jar.pack.Package.File
 
 case class FilteredMessage(light: String, and: String, fluffy: String, message: String) {
   override def toString: String = {
@@ -12,6 +13,22 @@ case class FilteredMessage(light: String, and: String, fluffy: String, message: 
 case class UnfilteredPayload(largePayload: String)
 
 object ContentFilterDriver extends CompletableApp(3) {
+}
+
+class MessageExchangeDispatcher extends Actor {
+  val messageContentFilter = context.actorOf(Props[MessageContentFilter], "messageContentFilter")
+
+  override def receive: Receive = {
+    case message: UnfilteredPayload =>
+      println("MessageExchangeDispatcher: received unfiltered message: " + message.largePayload)
+      messageContentFilter ! message
+      ContentFilterDriver.completedStep()
+    case message: FilteredMessage =>
+      println("MessageExchangeDispatcher: dispatching: " + message)
+      ContentFilterDriver.completedStep()
+    case _ =>
+      println("MessageExchangeDispatcher: received unexpected message")
+  }
 }
 
 class MessageContentFilter extends Actor {
